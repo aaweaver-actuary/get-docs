@@ -34,5 +34,3 @@ class Docs:
     def concatenate_docs(self):
         docs = self.get_docs()
         return "\n\n === \n\n".join([doc.page_content for doc in docs])
-
-    
