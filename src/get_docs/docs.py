@@ -1,5 +1,8 @@
+from __future__ import annotations
 from bs4 import BeautifulSoup
-from langchain_community.document_loaders.recursive_url_loader import RecursiveURLLoader
+from langchain_community.document_loaders.recursive_url_loader import (
+    RecursiveUrlLoader,
+)
 
 
 class Docs:
@@ -12,16 +15,19 @@ class Docs:
     ):
         self.url = url
         self.max_depth = max_depth
-        self.loader = RecursiveURLLoader(
-            url=url,
-            max_depth=max_depth,
-            extractor=lambda x: BeautifulSoup(x, "html.parser").text,
-        )
+        self.loader = RecursiveUrlLoader(
+                url=url,
+                max_depth=max_depth,
+                extractor=lambda x: BeautifulSoup(x, "html.parser").text,
+            )
         self.sort_results = sort_results
         self.reverse_results = reverse_results
 
     def get_docs(self):
-        docs = self.loader().load()
+        # listdoclist = [loader.load() for loader in self.recursive_loader]
+        # docs = [doc for doclist in listdoclist for doc in doclist]
+
+        docs = self.loader.load()
 
         if self.sort_results:
             docs = sorted(docs, key=lambda x: x.metadata["source"])
@@ -34,3 +40,8 @@ class Docs:
     def concatenate_docs(self):
         docs = self.get_docs()
         return "\n\n === \n\n".join([doc.page_content for doc in docs])
+
+    def save_docs(self, path: str):
+        docs = self.get_docs()
+        with open(path, "w") as f:
+            f.write("\n\n === \n\n".join([doc.page_content for doc in docs]))
